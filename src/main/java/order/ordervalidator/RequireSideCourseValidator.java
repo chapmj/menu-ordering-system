@@ -1,16 +1,20 @@
 package order.ordervalidator;
 
+import menu.CourseType;
 import order.IMessageQueue;
 import order.Order;
 
 import java.util.Objects;
+
+import static menu.CourseType.*;
+import static menu.CourseType.Main;
 
 public class RequireSideCourseValidator implements IOrderValidator {
 
     @Override
     public boolean validate(Order order) {
         Objects.requireNonNull(order);
-        return !order.getSideCourses().isEmpty();
+        return !order.getMenuItems(Side).isEmpty();
     }
 
     @Override

@@ -5,11 +5,13 @@ import order.Order;
 
 import java.util.Objects;
 
+import static menu.CourseType.Main;
+
 public class RequireMainCourseValidator implements IOrderValidator {
     @Override
     public boolean validate(Order order) {
         Objects.requireNonNull(order);
-        return !order.getMainCourses().isEmpty();
+        return !order.getMenuItems(Main).isEmpty();
     }
 
     @Override

@@ -1,6 +1,4 @@
-package order;
-
-import order.ordervalidator.*;
+package order.ordervalidator;
 
 public class OrderValidatorSvcInit {
     public static void initialize() {

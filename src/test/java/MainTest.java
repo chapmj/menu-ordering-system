@@ -1,10 +1,15 @@
 import menu.*;
 import order.*;
+import order.ordervalidator.OrderValidatorSvc;
+import order.ordervalidator.OrderValidatorSvcInit;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static menu.CourseType.Dessert;
+import static menu.MenuType.Dinner;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MainTest {
     static OrderFactory orderFactory;
@@ -79,7 +84,7 @@ class MainTest {
 
     @Test
     public void multiSandwichLunchTest() {
-        String input = "Lunch 1, 1,2, 3";
+        String input = "Lunch 1, 1, 2, 3";
         Order order = orderFactory.create(input);
         assertNotNull(order);
         OrderValidatorSvc.getInstance().validate(order);
@@ -149,8 +154,8 @@ class MainTest {
 
     @Test void longItemId() {
 
-        Menu dinnerMenu = MenuSvc.Get("Dinner");
-        Course course = dinnerMenu.getCourse("Dessert");
+        Menu dinnerMenu = MenuSvc.Get(Dinner);
+        Course course = dinnerMenu.getCourse(Dessert);
         course.add(new MenuItem("987654321", "Gummy Bears"));
 
         String input = "Dinner 1, 2, 3, 987654321";
@@ -159,9 +164,12 @@ class MainTest {
         OrderValidatorSvc.getInstance().validate(order);
         String output = OrderPrinterSvc.getInstance().print(order);
         assertEquals("Steak, Potatoes, Wine, Water, Gummy Bears", output);
-
-
     }
 
-
+    @ParameterizedTest
+    @ValueSource (strings = {"Dinner ,,,", ",,,", "", "Dinner 1 2 3 4"})
+    public void badInputTest(String input) {
+        Order order = orderFactory.create(input);
+        assertNull(order);
+    }
 }

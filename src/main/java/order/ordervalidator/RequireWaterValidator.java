@@ -5,8 +5,10 @@ import menu.MenuItem;
 import order.IMessageQueue;
 import order.Order;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
+
+import static menu.CourseType.Drink;
 
 public class RequireWaterValidator implements IOrderValidator {
 
@@ -14,7 +16,7 @@ public class RequireWaterValidator implements IOrderValidator {
     public boolean validate(Order order) {
         Objects.requireNonNull(order);
 
-        List<MenuItem> drinks = order.getDrinkCourses();
+        Collection<MenuItem> drinks = order.getMenuItems(Drink);
 
         Objects.requireNonNull(drinks);
         for(MenuItem menuItem : drinks) {

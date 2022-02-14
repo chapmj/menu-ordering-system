@@ -1,6 +1,7 @@
-package order;
+package order.ordervalidator;
 
-import order.ordervalidator.IOrderValidator;
+import order.InvalidOrderMessageQueueSvc;
+import order.Order;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +45,7 @@ public class OrderValidatorSvc {
          invalidMQ.add("Unable to validate order");
       }
       else {
-         String ruleContext = order.getMenu();
+         String ruleContext = order.getMenuName();
          List<IOrderValidator> rulesInContext = validationRules.get(ruleContext);
 
          for (IOrderValidator rule : rulesInContext) {

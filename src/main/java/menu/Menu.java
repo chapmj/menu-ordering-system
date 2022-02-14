@@ -1,27 +1,25 @@
 package menu;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.EnumMap;
 
 public class Menu {
 
-    private final HashMap<String, Course> courses;
-    private final String menuName;
+    private final EnumMap<CourseType, Course> courses;
+    private final MenuType menuName;
 
-    public Menu(String menuName, Course... courses) {
+    public Menu(MenuType menuName, Course... courses) {
         this.menuName = menuName;
-        this.courses = new HashMap<>();
+        this.courses = new EnumMap<>(CourseType.class);
 
-        if(courses != null) {
-            for (Course course : courses) {
-                if (course != null) {
-                    this.courses.put(course.toString(), course);
-                }
+        for (Course course : courses) {
+            if (course != null) {
+                this.courses.put(course.getName(), course);
             }
         }
     }
 
-    public Course getCourse(String courseName) {
+    public Course getCourse(CourseType courseName) {
         return courses.get(courseName);
     }
 
@@ -31,9 +29,10 @@ public class Menu {
     }
 
     public String toString() {
-        return this.menuName;
+        return this.menuName.toString();
     }
 
-
-
+    public MenuType getName() {
+        return this.menuName;
+    }
 }

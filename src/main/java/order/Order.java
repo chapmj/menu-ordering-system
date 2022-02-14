@@ -1,42 +1,36 @@
 package order;
 
+import menu.Course;
+import menu.CourseType;
 import menu.MenuItem;
+import menu.MenuType;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.EnumMap;
 
 public class Order {
-    String menu;
-    List<MenuItem> mainCourses;
-    List<MenuItem> sideCourses;
-    List<MenuItem> drinkCourses;
-    List<MenuItem> dessertCourses;
+    MenuType menuName;
+    EnumMap<CourseType, Collection<MenuItem>> courseMap;
 
-    public Order(String menu, List<MenuItem> mainCourses, List<MenuItem> sideCourses, List<MenuItem> drinkCourses, List<MenuItem> dessertCourses) {
-        this.menu = menu;
-        this.mainCourses = mainCourses;
-        this.sideCourses = sideCourses;
-        this.drinkCourses = drinkCourses;
-        this.dessertCourses = dessertCourses;
+    public Order(MenuType menuName, Course... courses) {
+        this.menuName = menuName;
+        this.courseMap = new EnumMap<>(CourseType.class);
+
+        for(Course course : courses) {
+            this.courseMap.put(course.getName(), course.getItems());
+        }
     }
 
-    public String getMenu() {
-        return menu;
+    public MenuType getName() {
+        return menuName;
+    }
+    public String getMenuName() {
+        return menuName.toString();
     }
 
-    public List<MenuItem> getMainCourses() {
-        return mainCourses;
-
-    }
-    public List<MenuItem> getSideCourses() {
-        return sideCourses;
-
-    }
-    public List<MenuItem> getDrinkCourses() {
-        return drinkCourses;
-
-    }
-    public List<MenuItem> getDessertCourses() {
-        return dessertCourses;
+    public Collection<MenuItem> getMenuItems(CourseType courseType) {
+        Collection<MenuItem> menuItems = this.courseMap.get(courseType);
+        return menuItems;
     }
 
 }

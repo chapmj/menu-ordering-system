@@ -1,6 +1,9 @@
 package order.ordervalidator;
 
+import menu.Course;
+import menu.CourseType;
 import menu.MenuItem;
+import menu.MenuType;
 import order.InvalidOrderMessageQueueSvc;
 import order.Order;
 import order.OrderFactory;
@@ -10,6 +13,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
+import static menu.CourseType.*;
+import static menu.MenuType.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -18,11 +23,11 @@ class RequireDessertCourseValidatorTest {
     @Test
     void validateTest() {
         OrderFactory orderFactory = new OrderFactory(new OrderFormatVerifier());
-        ArrayList<MenuItem> mainCourses = new ArrayList<>();
-        ArrayList<MenuItem> sideCourses = new ArrayList<>();
-        ArrayList<MenuItem> drinkCourses = new ArrayList<>();
-        ArrayList<MenuItem> dessertCourses = new ArrayList<>();
-        Order order = new Order("Breakfast" , mainCourses, sideCourses, drinkCourses, dessertCourses);
+        Course mainCourse = new Course(Main);
+        Course sideCourse = new Course(Side);
+        Course drinkCourse = new Course(Drink);
+        Course dessertCourse = new Course(Dessert);
+        Order order = new Order(Breakfast , mainCourse, sideCourse, drinkCourse, dessertCourse);
 
 
         RequireDessertCourseValidator validator = new RequireDessertCourseValidator();
