@@ -2,14 +2,23 @@ package order;
 
 import menu.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.StringTokenizer;
+
+import static menu.CourseType.*;
+import static menu.MenuType.Dinner;
+import static menu.MenuType.Other;
 
 public class OrderFactory {
 
     IVerify verifier;
+
+    public static void main(String[] args) {
+        OrderFactory factory = new OrderFactory(new OrderFormatVerifier());
+        MenuSvcInit.initialize();
+        factory.create("Breakfast 1, 2, 3");
+
+    }
 
     public OrderFactory(IVerify orderFormatVerifier) {
         this.verifier = orderFormatVerifier;
@@ -17,112 +26,103 @@ public class OrderFactory {
 
     public Order create(String rawOrder) {
 
-        //<!--Begin setup nullchecks
+        MenuType menuName;
+        Menu menu;
+        Collection<Course> menuCourses;
+
+        // Begin setup
         boolean isOrderFormatVerified = verifier.verify(rawOrder);
-        if(!isOrderFormatVerified) return null;
+        if (!isOrderFormatVerified) {
+            return null;
+        }
 
-        String[] ordersArr = rawOrderToArray(rawOrder);
-        if(ordersArr == null) return null;
+        StringTokenizer tokenizer = new StringTokenizer(rawOrder);
 
-        String menuName = ordersArr[0];
-        Menu menu = MenuSvc.Get(menuName);
-        if(menu == null) return null;
+        if (tokenizer.hasMoreElements()) {
 
-        Collection<Course> courses;
-        courses = menu.getAllCourses();
-        if(courses == null || courses.isEmpty()) return null;
-        //End setup nullchecks -->
+            String possibleMenuName = tokenizer.nextToken(" ");
+            try {
+                menuName = MenuType.valueOf(possibleMenuName);
+            }
+            catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
+        else {
+            return null;
+        }
 
-        //Set up parameter vars for Order object
-        List<MenuItem> mainCourses = new ArrayList<>();
-        List<MenuItem> sideCourses = new ArrayList<>();
-        List<MenuItem> drinkCourses = new ArrayList<>();
-        List<MenuItem> dessertCourses = new ArrayList<>();
+        menu = MenuSvc.Get(menuName);
 
-        Arrays.stream(ordersArr).forEach((order) -> {
-            //Search courses for each menuID and fill corresponding list with MenuItem
-            for (Course course : courses) {
+        if (menu == null) {
+            return null;
+        }
 
+        menuCourses = menu.getAllCourses();
+
+        if (menuCourses == null || menuCourses.isEmpty()) {
+            return null;
+        }
+        //End setup
+
+        Course mainCourse = new Course(Main);
+        Course sideCourse = new Course(Side);
+        Course drinkCourse = new Course(Drink);
+        Course dessertCourse = new Course(Dessert);
+
+        //Search courses for each menuID and fill corresponding list with MenuItem
+        while (tokenizer.hasMoreTokens()) {
+
+            String order = tokenizer.nextToken(", \n");
+            for (Course course : menuCourses) {
                 MenuItem menuItem = course.getMenuItem(order);
 
                 if (menuItem != null) {
-                    switch (course.toString()) {
-                        case "Main":
-                            mainCourses.add(menuItem);
+                    switch (course.getName()) {
+                        case Main:
+                            mainCourse.add(menuItem);
                             break;
-                        case "Side":
-                            sideCourses.add(menuItem);
+                        case Side:
+                            sideCourse.add(menuItem);
                             break;
-                        case "Drink":
-                            drinkCourses.add(menuItem);
+                        case Drink:
+                            drinkCourse.add(menuItem);
                             break;
-                        case "Dessert":
-                            dessertCourses.add(menuItem);
+                        case Dessert:
+                            dessertCourse.add(menuItem);
                             break;
-
                         default:
-                            //Skip id
-                            break;
+                            throw new IllegalStateException("Unexpected value: " + course.getName());
                     }
                 }
             }
-        });
-
-        if(drinkCourses.isEmpty()) {
-            Menu otherMenu = MenuSvc.Get("Other");
-            Course course = otherMenu.getCourse("Drink");
-            MenuItem defaultWater = course.getMenuItem("0");
-            drinkCourses.add(defaultWater);
         }
 
-        if(menuName.equals("Dinner")) {
+        if (drinkCourse.getItems().isEmpty()) {
+            Menu otherMenu = MenuSvc.Get(Other);
+            Course course = otherMenu.getCourse(Drink);
+            MenuItem defaultWater = course.getMenuItem("0");
+            drinkCourse.add(defaultWater);
+        }
+
+        if (menuName.equals(Dinner)) {
 
             boolean hasWater = false;
-            for(MenuItem item : drinkCourses) {
-                if(item.toString().equals("Water")) {
+            for (MenuItem item : drinkCourse.getItems()) {
+                if (item.toString().equals("Water")) {
                     hasWater = true;
                     break;
                 }
             }
 
-            if(!hasWater) {
-                Menu dinnerMenu = MenuSvc.Get("Dinner");
-                Course course = dinnerMenu.getCourse("Drink");
+            if (!hasWater) {
+                Menu dinnerMenu = MenuSvc.Get(Dinner);
+                Course course = dinnerMenu.getCourse(Drink);
                 MenuItem defaultWater = course.getMenuItem("0");
-                drinkCourses.add(defaultWater);
+                drinkCourse.add(defaultWater);
             }
-
         }
 
-        return new Order(menuName, mainCourses, sideCourses, drinkCourses, dessertCourses);
-    }
-
-    private String[] rawOrderToArray(String rawOrder) {
-
-        String[] halves = rawOrder.split(" ", 2);
-
-        if(halves.length == 2) {
-            String head = halves[0];
-            String tail = halves[1];
-            String[] orders = tail.split(",");
-
-            String[] ordersArr = new String[1 + orders.length];
-
-            //join head + orders
-            ordersArr[0] = head;
-            for(int i = 0; i < orders.length; i++) {
-                ordersArr[i + 1] = orders[i].trim();
-            }
-
-            return ordersArr;
-
-        } else if(halves.length == 1) {
-            String[] ordersArr = new String[1];
-            ordersArr[0] = halves[0];
-            return ordersArr;
-
-        } else {
-            return null;
-        }
+        return new Order(menuName, mainCourse, sideCourse, drinkCourse, dessertCourse);
     }
 }

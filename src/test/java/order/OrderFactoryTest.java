@@ -1,12 +1,16 @@
 package order;
 
+import menu.CourseType;
 import menu.MenuItem;
 import menu.MenuSvcInit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.List;
+import java.util.Collection;
 
+import static menu.CourseType.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class OrderFactoryTest {
@@ -19,79 +23,33 @@ class OrderFactoryTest {
         factory = new OrderFactory(new OrderFormatVerifier());
     }
 
-    @Test
-    void createTest() {
-        Order order = factory.create("Breakfast 1, 2, 3");
+    @ParameterizedTest
+    @ValueSource(strings = {"Breakfast 1, 2, 3", "Breakfast 1,2,3", "Breakfast 1, 2,3"})
+    void createTest(String input) {
+        Order order = factory.create(input);
         assertNotNull(order);
 
-        List<MenuItem> desserts = order.getDessertCourses();
+        Collection<MenuItem> desserts = order.getMenuItems(Dessert);
         assertTrue(desserts.isEmpty());
-        assertTrue(desserts.size() == 0);
+        assertEquals(0, desserts.size());
 
-        List<MenuItem> sides = order.getSideCourses();
-        assertTrue(!sides.isEmpty());
-        assertTrue(sides.size() == 1);
-        assertEquals(sides.get(0).getID(), "2");
+        Collection<MenuItem> sides = order.getMenuItems(Side);
+        assertFalse(sides.isEmpty());
+        assertEquals(1, sides.size());
+        String id = ((MenuItem) sides.toArray()[0]).getID();
+        assertEquals(id, "2");
 
-        List<MenuItem> mains = order.getMainCourses();
-        assertTrue(!mains.isEmpty());
-        assertTrue(mains.size() == 1);
-        assertEquals(mains.get(0).getID(), "1");
+        Collection<MenuItem> mains = order.getMenuItems(CourseType.Main);
+        assertFalse(mains.isEmpty());
+        assertEquals(1, mains.size());
+        String idMain = ((MenuItem) mains.toArray()[0]).getID();
+        assertEquals(idMain, "1");
 
-        List<MenuItem> drinks = order.getDrinkCourses();
-        assertTrue(!drinks.isEmpty());
-        assertTrue(drinks.size() == 1);
-        assertEquals(drinks.get(0).getID(), "3");
-    }
-
-    @Test
-    void createTestValidVariation0() {
-        Order order = factory.create("Breakfast 1,2,3");
-        assertNotNull(order);
-
-        List<MenuItem> desserts = order.getDessertCourses();
-        assertTrue(desserts.isEmpty());
-        assertTrue(desserts.size() == 0);
-
-        List<MenuItem> sides = order.getSideCourses();
-        assertTrue(!sides.isEmpty());
-        assertTrue(sides.size() == 1);
-        assertEquals(sides.get(0).getID(), "2");
-
-        List<MenuItem> mains = order.getMainCourses();
-        assertTrue(!mains.isEmpty());
-        assertTrue(mains.size() == 1);
-        assertEquals(mains.get(0).getID(), "1");
-
-        List<MenuItem> drinks = order.getDrinkCourses();
-        assertTrue(!drinks.isEmpty());
-        assertTrue(drinks.size() == 1);
-        assertEquals(drinks.get(0).getID(), "3");
-    }
-
-    @Test
-    void createTestValidVariation1() {
-        Order order = factory.create("Breakfast 1,2, 3");
-        assertNotNull(order);
-
-        List<MenuItem> desserts = order.getDessertCourses();
-        assertTrue(desserts.isEmpty());
-        assertTrue(desserts.size() == 0);
-
-        List<MenuItem> sides = order.getSideCourses();
-        assertTrue(!sides.isEmpty());
-        assertTrue(sides.size() == 1);
-        assertEquals(sides.get(0).getID(), "2");
-
-        List<MenuItem> mains = order.getMainCourses();
-        assertTrue(!mains.isEmpty());
-        assertTrue(mains.size() == 1);
-        assertEquals(mains.get(0).getID(), "1");
-
-        List<MenuItem> drinks = order.getDrinkCourses();
-        assertTrue(!drinks.isEmpty());
-        assertTrue(drinks.size() == 1);
-        assertEquals(drinks.get(0).getID(), "3");
+        Collection<MenuItem> drinks = order.getMenuItems(CourseType.Drink);
+        assertFalse(drinks.isEmpty());
+        assertEquals(1, drinks.size());
+        String idDrink = ((MenuItem) drinks.toArray()[0]).getID();
+        assertEquals(idDrink, "3");
     }
 
     @Test
@@ -99,17 +57,17 @@ class OrderFactoryTest {
         Order order = factory.create("Breakfast");
         assertNotNull(order);
 
-        List<MenuItem> desserts = order.getDessertCourses();
+        Collection<MenuItem> desserts = order.getMenuItems(Dessert);
         assertTrue(desserts.isEmpty());
 
-        List<MenuItem> sides = order.getSideCourses();
+        Collection<MenuItem> sides = order.getMenuItems(Side);
         assertTrue(sides.isEmpty());
 
-        List<MenuItem> mains = order.getMainCourses();
+        Collection<MenuItem> mains = order.getMenuItems(Main);
         assertTrue(mains.isEmpty());
 
-        List<MenuItem> drinks = order.getDrinkCourses();
-        assertTrue(!drinks.isEmpty()); //Rule: All order get served water
+        Collection<MenuItem> drinks = order.getMenuItems(Drink);
+        assertFalse(drinks.isEmpty()); //Rule: All order get served water
     }
 
     @Test
@@ -117,18 +75,18 @@ class OrderFactoryTest {
         Order order = factory.create("Dinner 1, 2, 3, 4");
         assertNotNull(order);
 
-        List<MenuItem> desserts = order.getDessertCourses();
-        assertTrue(!desserts.isEmpty());
+        Collection<MenuItem> desserts = order.getMenuItems(Dessert);
+        assertFalse(desserts.isEmpty());
 
-        List<MenuItem> sides = order.getSideCourses();
-        assertTrue(!sides.isEmpty());
+        Collection<MenuItem> sides = order.getMenuItems(Side);
+        assertFalse(sides.isEmpty());
 
-        List<MenuItem> mains = order.getMainCourses();
-        assertTrue(!mains.isEmpty());
+        Collection<MenuItem> mains = order.getMenuItems(Main);
+        assertFalse(mains.isEmpty());
 
-        List<MenuItem> drinks = order.getDrinkCourses();
-        assertTrue(!drinks.isEmpty()); //Rule: All order get served water
-        assertTrue(drinks.size() == 2);
+        Collection<MenuItem> drinks = order.getMenuItems(Drink);
+        assertFalse(drinks.isEmpty()); //Rule: All order get served water
+        assertEquals(2, drinks.size());
     }
 
     @Test

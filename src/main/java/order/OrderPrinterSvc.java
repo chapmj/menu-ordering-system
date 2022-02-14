@@ -1,11 +1,9 @@
 package order;
 
+import menu.CourseType;
 import menu.MenuItem;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 public class OrderPrinterSvc {
 
@@ -65,14 +63,15 @@ public class OrderPrinterSvc {
 
     private String formatValidOrders(Order order) {
 
-        List<List<MenuItem>> courses = new ArrayList<>();
-        courses.add(order.getMainCourses());
-        courses.add(order.getSideCourses());
-        courses.add(order.getDrinkCourses());
-        courses.add(order.getDessertCourses());
+        List<Collection<MenuItem>> courses = new ArrayList<>();
+
+        for(CourseType courseName : CourseType.values()) {
+            Collection<MenuItem> menuItems = order.getMenuItems(courseName);
+            courses.add(menuItems);
+        }
 
         List<String> allItemsList = new ArrayList<>();
-        for(List<MenuItem> course : courses) {
+        for(Collection<MenuItem> course : courses) {
             HashMap<MenuItem, Integer> tally = new LinkedHashMap<>();//use linked to preserve ordering
             for(MenuItem menuItem : course) {
                 if (tally.containsKey(menuItem)) {
@@ -100,5 +99,4 @@ public class OrderPrinterSvc {
 
         return String.join(", ", allItemsList);
     }
-
 }

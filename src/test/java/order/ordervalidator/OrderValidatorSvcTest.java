@@ -1,8 +1,6 @@
 package order.ordervalidator;
 
 import order.InvalidOrderMessageQueueSvc;
-import order.OrderValidatorSvc;
-import order.ordervalidator.AlwaysTrueValidator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 

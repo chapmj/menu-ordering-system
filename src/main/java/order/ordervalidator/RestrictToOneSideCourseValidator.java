@@ -5,11 +5,13 @@ import order.Order;
 
 import java.util.Objects;
 
+import static menu.CourseType.Side;
+
 public class RestrictToOneSideCourseValidator implements IOrderValidator {
     @Override
     public boolean validate(Order order) {
         Objects.requireNonNull(order);
-        return order.getSideCourses().size() <= 1;
+        return order.getMenuItems(Side).size() <= 1;
     }
 
     @Override
